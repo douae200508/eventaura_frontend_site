@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Add to your global CSS (e.g., style.css or App.vue) */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+/* Override for specific elements that should stay LTR */
+[dir="rtl"] .nav-link::after {
+  left: auto;
+  right: 0;
+}
+

@@ -6,6 +6,7 @@
       variant === 'secondary' && 'text-white/60 hover:text-white transition-colors text-sm',
       variant === 'outline' && 'border border-white/25 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 rounded-full px-5 py-2 text-sm',
       variant === 'dark' && 'bg-[#0a0f2e] text-white hover:bg-[#1a1f3e] rounded-full px-6 py-2.5 text-sm',
+      variant === 'blue' && 'bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-2.5 text-sm font-medium shadow-sm',
       size === 'sm' && 'px-4 py-2 text-xs',
       size === 'lg' && 'px-8 py-4 text-base',
       disabled && 'opacity-50 cursor-not-allowed'
@@ -24,7 +25,7 @@ defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'outline', 'dark'].includes(value)
+    validator: (value) => ['primary', 'secondary', 'outline', 'dark', 'blue'].includes(value)
   },
   size: {
     type: String,

@@ -2,27 +2,13 @@
   <div class="min-h-screen bg-gray-50">
     <Navbar />
 
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-br from-[#0a0f2e] via-[#0f1842] to-[#1a2560] pt-32 pb-20 relative overflow-hidden">
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-10 left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"/>
-        <div class="absolute bottom-0 right-20 w-96 h-96 bg-blue-300/5 rounded-full blur-3xl"/>
-      </div>
-      <div class="max-w-7xl mx-auto px-8 relative z-10">
-        <div class="inline-flex items-center border border-white/15 text-white/50 text-xs tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
-          Venues
-        </div>
-        <h1 class="text-5xl font-light text-white mb-4 leading-tight" style="font-family: 'Cinzel', Georgia, serif;">
-          Find the perfect<br/><span class="text-blue-400">venue for your event</span>
+    <!-- Simple Header - Clean like Contact page -->
+    <div class="bg-white border-b border-gray-100 pt-32 pb-8">
+      <div class="max-w-7xl mx-auto px-8">
+        <h1 class="text-3xl font-light text-gray-900" style="font-family: 'Cinzel', serif;">
+          Find the perfect <span class="text-blue-500">venue for your event</span>
         </h1>
-        <p class="text-white/50 text-base max-w-xl leading-relaxed">
-          Discover Morocco's finest venues — from conference halls to luxury reception spaces.
-        </p>
-        <div class="flex gap-10 mt-10">
-          <div v-for="stat in heroStats" :key="stat.label">
-            <p class="text-2xl font-bold text-white">{{ stat.value }}</p>
-          </div>
-        </div>
+        <p class="text-gray-500 mt-2">Discover Morocco's finest venues — from conference halls to luxury reception spaces.</p>
       </div>
     </div>
 
@@ -204,7 +190,7 @@
                   </div>
                 </div>
 
-                <!-- Actions - Only ONE button -->
+                <!-- Actions - View Details Button -->
                 <div class="flex items-center gap-2 mt-auto pt-3 border-t border-gray-100">
                   <button 
                     @click="viewVenueDetails(venue)"
@@ -291,13 +277,6 @@ const venues = ref([
     isFavorited: false
   }
 ])
-
-const heroStats = [
-  { value: '50+', label: 'Premium Venues' },
-  { value: '15', label: 'Moroccan Cities' },
-  { value: '4.8', label: 'Avg. Rating' },
-  { value: '1 200+', label: 'Events Hosted' },
-]
 
 const moroccanCities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Tetouan']
 

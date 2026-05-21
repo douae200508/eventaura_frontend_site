@@ -2,28 +2,13 @@
   <div class="min-h-screen bg-gray-50">
     <Navbar />
 
-    <!-- ── HERO ── -->
-    <div class="bg-gradient-to-br from-[#0a0f2e] via-[#0f1842] to-[#1a2560] pt-32 pb-20 relative overflow-hidden">
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-10 left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"/>
-        <div class="absolute bottom-0 right-20 w-96 h-96 bg-blue-300/5 rounded-full blur-3xl"/>
-      </div>
-      <div class="max-w-7xl mx-auto px-8 relative z-10">
-        <div class="inline-flex items-center border border-white/15 text-white/50 text-xs tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
-          Events
-        </div>
-        <h1 class="text-5xl font-light text-white mb-4 leading-tight" style="font-family: 'Cinzel', Georgia, serif;">
-          Discover & join<br/><span class="text-blue-400">upcoming events</span>
+    <!-- Simple Header - Clean like Contact page -->
+    <div class="bg-white border-b border-gray-100 pt-32 pb-8">
+      <div class="max-w-7xl mx-auto px-8">
+        <h1 class="text-3xl font-light text-gray-900" style="font-family: 'Cinzel', serif;">
+          Discover & <span class="text-blue-500">Join</span>
         </h1>
-        <p class="text-white/50 text-base max-w-xl leading-relaxed">
-          Connect with industry leaders, share insights and explore new opportunities.
-        </p>
-        <div class="flex gap-10 mt-10">
-          <div v-for="stat in heroStats" :key="stat.label">
-            <p class="text-2xl font-bold text-white">{{ stat.value }}</p>
-            <p class="text-white/40 text-xs mt-0.5">{{ stat.label }}</p>
-          </div>
-        </div>
+        <p class="text-gray-500 mt-2">Explore upcoming events and connect with industry leaders.</p>
       </div>
     </div>
 
@@ -164,8 +149,6 @@
         </div>
       </div>
     </div>
-
-    <!-- REMOVED: Floating Action Button (Create Event) -->
 
     <!-- Promote Modal -->
     <PromoteEventModal
@@ -322,13 +305,6 @@ function onAdCreated() {
 }
 
 // Filtres
-const heroStats = [
-  { value: '700+', label: 'Available Events' },
-  { value: '30k+', label: 'Happy Attendees' },
-  { value: '120+', label: 'Partner Agencies' },
-  { value: '94%', label: 'Satisfaction Rate' },
-]
-
 const categories = [
   { id: 'all', name: 'All Categories' },
   { id: 'Conference', name: 'Conference' },

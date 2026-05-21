@@ -35,9 +35,9 @@
         </li>
       </ul>
 
-      <!-- Center logo - LARGER SIZE -->
-      <router-link to="/" class="logo-container absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
-        <img src="@/assets/logo.png" alt="EventAura" class="navbar-logo" />
+      <!-- Center Logo - FIXED Cinzel font, looks the same on all pages -->
+      <router-link to="/" class="logo-link absolute left-1/2 -translate-x-1/2">
+        Event<span class="logo-highlight">Aura</span>
       </router-link>
 
       <div class="hidden md:flex items-center gap-6">
@@ -213,7 +213,7 @@ function getCurrentLangLabel() {
 
 function changeLanguage(lang) {
   localStorage.setItem('selectedLang', lang)
-  location.reload() 
+  showLangMenu.value = false
 }
 
 function toggleLangMenu() {
@@ -279,8 +279,8 @@ function loadNotifications() {
 }
 
 function toggleNotifications() { showNotifications.value = !showNotifications.value }
-function markAllAsRead() { /* Implement logic */ }
-function handleNotificationClick(notif) { /* Implement logic */ }
+function markAllAsRead() { }
+function handleNotificationClick(notif) { }
 function getNotificationIconClass(type) { return 'bg-gray-100' }
 function getNotificationIcon(type) { return 'M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z' }
 function formatDate(dateString) { if (!dateString) return ''; return new Date(dateString).toLocaleDateString() }
@@ -314,37 +314,29 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.logo-container {
-  height: 100%;
-  padding: 4px 0;
+/* Logo with Cinzel font - looks exactly the same on all pages */
+.logo-link {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: white;
+  text-decoration: none;
+  white-space: nowrap;
   transition: opacity 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.logo-container:hover {
+.logo-link:hover {
   opacity: 0.85;
 }
 
-/* LARGER LOGO */
-.navbar-logo {
-  height: 56px; /* Increased from 48px to 56px for larger logo */
-  width: auto;
-  object-fit: contain;
-  max-width: 200px; /* Prevents it from getting too wide */
-}
-
-/* For smaller screens when navbar is shorter */
-@media (max-width: 768px) {
-  .navbar-logo {
-    height: 42px;
-  }
+.logo-highlight {
+  color: #60a5fa;
 }
 
 .nav-link { 
   font-size: 0.875rem; 
-  font-weight: 300; 
+  font-weight: 400; 
   letter-spacing: 0.04em; 
   color: rgba(255,255,255,0.65); 
   text-decoration: none; 
@@ -369,7 +361,7 @@ onUnmounted(() => {
 
 .sign-in-btn { 
   font-size: 0.875rem; 
-  font-weight: 300; 
+  font-weight: 400; 
   letter-spacing: 0.04em; 
   color: rgba(255,255,255,0.8); 
   border: 1px solid rgba(255,255,255,0.3); 

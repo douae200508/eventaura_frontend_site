@@ -17,6 +17,16 @@
         </svg>
       </button>
 
+      <!-- Share button -->
+      <button
+        @click.stop="shareEvent"
+        class="absolute top-3 right-16 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 z-10 bg-white/90 text-gray-400 hover:text-blue-500 hover:bg-white"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/>
+        </svg>
+      </button>
+
       <!-- Promoted Badge -->
       <div v-if="event.isPromoted" class="absolute top-3 left-3 bg-gradient-to-r from-purple-500 to-pink-500 backdrop-blur-sm rounded-full px-3 py-1 shadow-sm">
         <span class="text-xs font-bold text-white flex items-center gap-1">
@@ -102,7 +112,7 @@
         </div>
       </div>
 
-      <!-- ACTIONS - BOOK & PROMOTE BUTTONS -->
+      <!-- ACTIONS -->
       <div class="flex items-center gap-2 mt-auto pt-3 border-t border-gray-100">
         
         <!-- BOOK TICKETS BUTTON - For clients only -->
@@ -135,7 +145,7 @@
           Promote
         </div>
         
-        <!-- PROVIDER ROLE - Cannot book -->
+        <!-- PROVIDER ROLE -->
         <div 
           v-else-if="userRole === 'provider'"
           class="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-not-allowed"
@@ -153,7 +163,18 @@
           Sign in to book
         </div>
         
-        <!-- PREVIEW BUTTON (Eye) - For everyone -->
+        <!-- SHARE BUTTON -->
+        <button 
+          @click.stop="shareEvent"
+          class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-all duration-300 flex-shrink-0"
+          title="Share this event"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/>
+          </svg>
+        </button>
+        
+        <!-- PREVIEW BUTTON (Eye) -->
         <button 
           @click="$emit('preview', event)"
           class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-[#0a0f2e] hover:text-[#0a0f2e] transition-all duration-300 flex-shrink-0"
@@ -200,6 +221,26 @@ function formatDate(dateString) {
   if (!dateString) return 'Date TBD'
   const date = new Date(dateString)
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function shareEvent() {
+  if (navigator.share) {
+    navigator.share({
+      title: props.event.titre,
+      text: `Check out this event: ${props.event.titre}`,
+      url: window.location.origin + `/events/${props.event.id}`
+    }).catch(() => {
+      copyToClipboard()
+    })
+  } else {
+    copyToClipboard()
+  }
+}
+
+function copyToClipboard() {
+  const url = window.location.origin + `/events/${props.event.id}`
+  navigator.clipboard.writeText(url)
+  alert('Event link copied to clipboard!')
 }
 
 function checkIfFavorited() {

@@ -8,17 +8,25 @@
         <div class="bg-gradient-to-r from-[#0a0f2e] to-[#1a1f4e] px-8 py-8 text-white">
           <div class="flex items-center gap-6">
             <div class="relative">
-              <img 
-                :src="user.photo_profil || `https://ui-avatars.com/api/?name=${user.prenom}+${user.nom}&background=1a2560&color=fff&size=100`" 
-                class="w-24 h-24 rounded-full object-cover border-4 border-white/20"
-              />
+             <img :src="user.photo_profil ? `http://127.0.0.1:8000/storage/${user.photo_profil}`: `https://ui-avatars.com/api/?name=${user.prenom}+${user.nom}&background=1a2560&color=fff&size=100`"
+       class="w-24 h-24 rounded-full object-cover border-4 border-white/20"
+/>
               <label class="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/>
-                </svg>
-                <input type="file" class="hidden" accept="image/*" @change="handlePhotoUpload"/>
-              </label>
+
+  <!-- ICON -->
+  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
+    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/>
+  </svg>
+
+  <!-- HIDDEN INPUT -->
+  <input 
+    type="file" 
+    class="hidden"
+    accept="image/*"
+    @change="handlePhotoUpload"
+  />
+</label>
             </div>
             <div>
               <h1 class="text-2xl font-bold">{{ user.prenom }} {{ user.nom }}</h1>
@@ -50,7 +58,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input v-model="user.email" type="email" class="w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 cursor-not-allowed" disabled/>
+              <input v-model="user.email" type="email" class="w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50"/>
             </div>
             <div class="grid grid-cols-2 gap-5">
               <div>
@@ -123,39 +131,134 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 
 const router = useRouter()
 const activeTab = ref('profile')
-const user = ref({ id: null, nom: '', prenom: '', email: '', role: '', photo_profil: '', telephone: '', ville: '' })
 
-const roleBadge = computed(() => ({ client: 'bg-blue-100 text-blue-700', organizer: 'bg-purple-100 text-purple-700', provider: 'bg-emerald-100 text-emerald-700' }[user.value.role] || 'bg-gray-100 text-gray-700'))
-const roleLabel = computed(() => ({ client: 'Client', organizer: 'Organizer', provider: 'Provider' }[user.value.role] || ''))
+const user = ref({
+  id: null,
+  nom: '',
+  prenom: '',
+  email: '',
+  role: '',
+  photo_profil: '',
+  telephone: '',
+  ville: ''
+})
 
-const stats = ref({ totalEvents: 0, totalBookings: 0, avgRating: 0, recentActivities: [] })
+const stats = ref({
+  totalEvents: 0,
+  totalBookings: 0,
+  avgRating: 0,
+  recentActivities: []
+})
 
-function loadUser() {
-  const storedUser = localStorage.getItem('eventaura_currentUser')
-  if (storedUser) {
-    user.value = JSON.parse(storedUser)
-  } else {
+const roleBadge = computed(() => ({
+  client: 'bg-blue-100 text-blue-700',
+  organizer: 'bg-purple-100 text-purple-700',
+  provider: 'bg-emerald-100 text-emerald-700'
+}[user.value.role] || 'bg-gray-100 text-gray-700'))
+
+const roleLabel = computed(() => ({
+  client: 'Client',
+  organizer: 'Organizer',
+  provider: 'Provider'
+}[user.value.role] || ''))
+
+// 🔐 TOKEN
+function getToken() {
+  return localStorage.getItem('token')
+}
+
+// =====================
+// 📥 LOAD USER FROM LARAVEL
+// =====================
+async function loadUser() {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/site/profil', {
+      headers: {
+        Authorization: `Bearer ${getToken()}`
+      }
+    })
+
+    user.value = res.data
+
+  } catch (err) {
+    console.error(err)
     router.push('/auth')
   }
 }
 
+// =====================
+// 💾 UPDATE PROFILE
+// =====================
+async function updateProfile() {
+  const formData = new FormData()
+
+  formData.append('nom', user.value.nom)
+  formData.append('prenom', user.value.prenom)
+  formData.append('email', user.value.email)
+  formData.append('telephone', user.value.telephone)
+  formData.append('ville', user.value.ville)
+
+  // ✅ image AJOUTÉE ICI
+  if (user.value.photoFile) {
+    formData.append('photo_profil', user.value.photoFile)
+  }
+
+  try {
+    const res = await axios.post(
+      'http://127.0.0.1:8000/api/site/profil?_method=PUT',
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    )
+
+    user.value = res.data.user
+    alert('Profil mis à jour ✔')
+
+  } catch (err) {
+    console.error(err)
+    alert('Erreur update profil')
+  }
+}
+function handlePhotoUpload(e) {
+
+  const file = e.target.files[0]
+  user.value.photoFile = file
+}
+// =====================
+// 📊 STATS (local fallback comme tu as fait)
+// =====================
 function loadStats() {
   const events = JSON.parse(localStorage.getItem('approvedEvents') || '[]')
-  const userEvents = events.filter(e => e.organisateur_id === user.value.id || e.organizerId === user.value.id)
+
+  const userEvents = events.filter(e =>
+    e.organisateur_id === user.value.id || e.organizerId === user.value.id
+  )
+
   stats.value.totalEvents = userEvents.length
   stats.value.totalBookings = userEvents.reduce((sum, e) => sum + (e.bookings || 0), 0)
+
   const reviews = JSON.parse(localStorage.getItem('eventReviews') || '[]')
   const userReviews = reviews.filter(r => r.user_id === user.value.id)
-  if (userReviews.length > 0) stats.value.avgRating = (userReviews.reduce((sum, r) => sum + r.note, 0) / userReviews.length).toFixed(1)
+
+  if (userReviews.length > 0) {
+    stats.value.avgRating =
+      (userReviews.reduce((sum, r) => sum + r.note, 0) / userReviews.length).toFixed(1)
+  }
 }
 
-function handlePhotoUpload(e) { alert('Photo upload feature coming soon!') }
-function updateProfile() { alert('Profile updated!') }
-
-onMounted(() => { loadUser(); loadStats() })
+// =====================
+onMounted(async () => {
+  await loadUser()
+  loadStats()
+})
 </script>

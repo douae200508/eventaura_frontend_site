@@ -15,8 +15,18 @@
         <span class="text-[10px] text-gray-400">({{ service.reviews }})</span>
       </div>
 
+      <!-- Share button -->
+      <button
+        @click.stop="shareService"
+        class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 z-10 bg-white/90 text-gray-400 hover:text-blue-500 hover:bg-white"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/>
+        </svg>
+      </button>
+
       <!-- Availability -->
-      <div class="absolute top-3 right-3 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-wide backdrop-blur-sm"
+      <div class="absolute top-3 right-20 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-wide backdrop-blur-sm"
         :class="service.available ? 'bg-emerald-500/90 text-white' : 'bg-gray-500/80 text-white'">
         {{ service.available ? 'Available' : 'Unavailable' }}
       </div>
@@ -95,6 +105,36 @@
 </template>
 
 <script setup>
-defineProps({ service: { type: Object, required: true } })
-defineEmits(['book', 'preview'])
+const props = defineProps({ service: { type: Object, required: true } })
+const emit = defineEmits(['book', 'preview'])
+
+function shareService() {
+  if (navigator.share) {
+    navigator.share({
+      title: props.service.name,
+      text: `Check out this service: ${props.service.name}`,
+      url: window.location.origin + `/service/${props.service.id}`
+    }).catch(() => {
+      copyToClipboard()
+    })
+  } else {
+    copyToClipboard()
+  }
+}
+
+function copyToClipboard() {
+  const url = window.location.origin + `/service/${props.service.id}`
+  navigator.clipboard.writeText(url)
+  alert('Service link copied to clipboard!')
+}
 </script>
+
+<style scoped>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

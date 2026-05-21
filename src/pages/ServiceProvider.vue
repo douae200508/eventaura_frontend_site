@@ -2,27 +2,13 @@
   <div class="min-h-screen bg-gray-50">
     <Navbar />
 
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-br from-[#0a0f2e] via-[#0f1842] to-[#1a2560] pt-32 pb-20 relative overflow-hidden">
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-10 left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"/>
-        <div class="absolute bottom-0 right-20 w-96 h-96 bg-blue-300/5 rounded-full blur-3xl"/>
-      </div>
-      <div class="max-w-7xl mx-auto px-8 relative z-10">
-        <div class="inline-flex items-center border border-white/15 text-white/50 text-xs tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
-          Service Providers
-        </div>
-        <h1 class="text-5xl font-light text-white mb-4 leading-tight" style="font-family: 'Cinzel', Georgia, serif;">
-          Find your perfect<br/><span class="text-blue-400">event partner</span>
+    <!-- Simple Header - Clean like Contact page -->
+    <div class="bg-white border-b border-gray-100 pt-32 pb-8">
+      <div class="max-w-7xl mx-auto px-8">
+        <h1 class="text-3xl font-light text-gray-900" style="font-family: 'Cinzel', serif;">
+          Find your perfect <span class="text-blue-500">event partner</span>
         </h1>
-        <p class="text-white/50 text-base max-w-xl leading-relaxed">
-          Browse Morocco's top event professionals — from venues and catering to AV, media, security and more.
-        </p>
-        <div class="flex gap-10 mt-10">
-          <div v-for="stat in heroStats" :key="stat.label">
-            <p class="text-2xl font-bold text-white">{{ stat.value }}</p>
-          </div>
-        </div>
+        <p class="text-gray-500 mt-2">Browse Morocco's top event professionals — from venues and catering to AV, media, security and more.</p>
       </div>
     </div>
 
@@ -435,7 +421,6 @@ function toggleFavorite(service) {
 
 // Go to service details page
 function goToServiceDetails(service) {
-  // Sauvegarder le service dans localStorage pour qu'il soit accessible
   localStorage.setItem('currentService', JSON.stringify(service))
   router.push(`/service/${service.id}`)
 }
@@ -498,13 +483,6 @@ function submitReview() {
 }
 
 // Filters
-const heroStats = [
-  { value: '120+', label: 'Service Providers' },
-  { value: '15', label: 'Moroccan Cities' },
-  { value: '4.8', label: 'Avg. Rating' },
-  { value: '2 400+', label: 'Events Completed' },
-]
-
 const moroccanCities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir']
 
 const categories = [

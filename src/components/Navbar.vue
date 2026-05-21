@@ -7,12 +7,10 @@
   >
     <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between relative">
 
-      <!-- Left links -->
       <ul class="hidden md:flex items-center gap-8">
         <li v-for="item in navLeft" :key="item.label">
           <router-link :to="item.to" class="nav-link">{{ item.label }}</router-link>
         </li>
-        <!-- Services Dropdown -->
         <li class="relative">
           <button @click="toggleServicesDropdown" class="nav-link inline-flex items-center gap-1">
             Services
@@ -37,14 +35,14 @@
         </li>
       </ul>
 
-      <!-- Center logo -->
-      <router-link to="/" class="logo absolute left-1/2 -translate-x-1/2">EventAura</router-link>
+      <!-- Center logo - LARGER SIZE -->
+      <router-link to="/" class="logo-container absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
+        <img src="@/assets/logo.png" alt="EventAura" class="navbar-logo" />
+      </router-link>
 
-      <!-- Right -->
       <div class="hidden md:flex items-center gap-6">
         <router-link to="/contact" class="nav-link">Contact</router-link>
 
-        <!-- Language Switcher (Google Translate) -->
         <div class="relative">
           <button @click="toggleLangMenu" class="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -57,19 +55,18 @@
           </button>
           
           <div v-if="showLangMenu" class="absolute right-0 top-full mt-2 w-36 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50">
-            <button @click="changeLanguage('fr')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+            <button @click="changeLanguage('fr')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2 text-gray-700">
               <span class="text-lg">🇫🇷</span> Français
             </button>
-            <button @click="changeLanguage('en')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+            <button @click="changeLanguage('en')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2 text-gray-700">
               <span class="text-lg">🇬🇧</span> English
             </button>
-            <button @click="changeLanguage('ar')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+            <button @click="changeLanguage('ar')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2 text-gray-700">
               <span class="text-lg">🇲🇦</span> العربية
             </button>
           </div>
         </div>
 
-        <!-- Notifications Icon -->
         <div v-if="isLoggedIn" class="relative">
           <button @click="toggleNotifications" class="relative p-1.5 rounded-full hover:bg-white/10 transition-colors">
             <svg class="w-5 h-5 text-white/70 hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -155,7 +152,6 @@
         </div>
       </div>
 
-      <!-- Mobile hamburger -->
       <button class="md:hidden flex flex-col gap-1.5 p-2 ml-auto" @click="menuOpen = !menuOpen" aria-label="Toggle menu">
         <span :class="['bar', menuOpen ? 'rotate-45 translate-y-2.5' : '']"/>
         <span :class="['bar', menuOpen ? 'opacity-0' : '']"/>
@@ -163,7 +159,6 @@
       </button>
     </div>
 
-    <!-- Mobile menu -->
     <div :class="['md:hidden overflow-hidden transition-all duration-300', menuOpen ? 'max-h-96 border-t border-white/10' : 'max-h-0']">
       <div class="bg-[#0a0f2e] px-6 py-4 flex flex-col gap-3">
         <router-link to="/" class="text-sm text-white/70 hover:text-white transition-colors" @click="menuOpen = false">Home</router-link>
@@ -182,7 +177,6 @@
         <router-link to="/events" class="text-sm text-white/70 hover:text-white transition-colors" @click="menuOpen = false">Events</router-link>
         <router-link to="/contact" class="text-sm text-white/70 hover:text-white transition-colors" @click="menuOpen = false">Contact</router-link>
         
-        <!-- Language selector for mobile -->
         <div class="flex gap-2 pt-2 border-t border-white/10 mt-2">
           <button @click="changeLanguage('fr')" class="flex-1 text-center text-sm text-white/70 hover:text-white py-1 px-2 rounded-lg hover:bg-white/10 transition-colors">🇫🇷 FR</button>
           <button @click="changeLanguage('en')" class="flex-1 text-center text-sm text-white/70 hover:text-white py-1 px-2 rounded-lg hover:bg-white/10 transition-colors">🇬🇧 EN</button>
@@ -202,7 +196,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Navigation
+// Navigation links
 const navLeft = [
   { label: 'Home', to: '/' },
   { label: 'Events', to: '/events' },
@@ -212,25 +206,21 @@ const navLeft = [
 const showLangMenu = ref(false)
 
 function getCurrentLangLabel() {
-  const lang = localStorage.getItem('selectedLang') || 'fr'
-  if (lang === 'fr') return '🇫🇷 FR'
-  if (lang === 'en') return '🇬🇧 EN'
-  if (lang === 'ar') return '🇲🇦 AR'
-  return '🌐'
+  const lang = localStorage.getItem('selectedLang') || 'en'
+  const labels = { fr: '🇫🇷 FR', en: '🇬🇧 EN', ar: '🇲🇦 AR' }
+  return labels[lang] || '🌐'
 }
 
 function changeLanguage(lang) {
   localStorage.setItem('selectedLang', lang)
-  const url = new URL(window.location.href)
-  url.searchParams.set('lang', lang)
-  window.location.href = url.toString()
+  location.reload() 
 }
 
 function toggleLangMenu() {
   showLangMenu.value = !showLangMenu.value
 }
 
-// Navigation function - FIX for dropdown links
+// Navigation helpers
 function navigateTo(route) {
   showServicesDropdown.value = false
   mobileServicesOpen.value = false
@@ -242,13 +232,22 @@ function navigateTo(route) {
 const isLoggedIn = ref(false)
 const currentUser = ref({ id: null, nom: '', prenom: '', email: '', role: '', photo_profil: '', telephone: '', ville: '' })
 
-// Notifications
+// Notifications logic
 const notifications = ref([])
 const showNotifications = ref(false)
 const unreadCount = computed(() => notifications.value.filter(n => !n.est_lu).length)
 
-const roleBadge = computed(() => ({ client: 'bg-blue-100 text-blue-700', organizer: 'bg-purple-100 text-purple-700', provider: 'bg-emerald-100 text-emerald-700' }[currentUser.value.role] || 'bg-gray-100 text-gray-700'))
-const roleLabel = computed(() => ({ client: 'Client', organizer: 'Organizer', provider: 'Provider' }[currentUser.value.role] || ''))
+const roleBadge = computed(() => ({ 
+  client: 'bg-blue-100 text-blue-700', 
+  organizer: 'bg-purple-100 text-purple-700', 
+  provider: 'bg-emerald-100 text-emerald-700' 
+}[currentUser.value.role] || 'bg-gray-100 text-gray-700'))
+
+const roleLabel = computed(() => ({ 
+  client: 'Client', 
+  organizer: 'Organizer', 
+  provider: 'Provider' 
+}[currentUser.value.role] || ''))
 
 // UI states
 const scrolled = ref(false)
@@ -266,11 +265,7 @@ function loadUser() {
   const user = localStorage.getItem('eventaura_currentUser')
   if (user) {
     const parsedUser = JSON.parse(user)
-    currentUser.value = {
-      id: parsedUser.id, nom: parsedUser.nom, prenom: parsedUser.prenom,
-      email: parsedUser.email, role: parsedUser.role, photo_profil: parsedUser.photo_profil || '',
-      telephone: parsedUser.telephone || '', ville: parsedUser.ville || ''
-    }
+    currentUser.value = { ...parsedUser }
     isLoggedIn.value = true
     loadNotifications()
   } else {
@@ -284,11 +279,11 @@ function loadNotifications() {
 }
 
 function toggleNotifications() { showNotifications.value = !showNotifications.value }
-function markAllAsRead() { /* Implement */ }
-function handleNotificationClick(notif) { /* Implement */ }
+function markAllAsRead() { /* Implement logic */ }
+function handleNotificationClick(notif) { /* Implement logic */ }
 function getNotificationIconClass(type) { return 'bg-gray-100' }
 function getNotificationIcon(type) { return 'M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z' }
-function formatDate(dateString) { if (!dateString) return ''; const date = new Date(dateString); return date.toLocaleDateString() }
+function formatDate(dateString) { if (!dateString) return ''; return new Date(dateString).toLocaleDateString() }
 
 function handleScroll() { scrolled.value = window.scrollY > 20 }
 function handleClickOutside(e) { 
@@ -319,17 +314,32 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400&display=swap');
+.logo-container {
+  height: 100%;
+  padding: 4px 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-.logo { 
-  font-family: 'Cinzel', Georgia, serif; 
-  font-weight: 300; 
-  font-size: 1.05rem; 
-  letter-spacing: 0.3em; 
-  text-transform: uppercase; 
-  color: white; 
-  text-decoration: none; 
-  white-space: nowrap; 
+.logo-container:hover {
+  opacity: 0.85;
+}
+
+/* LARGER LOGO */
+.navbar-logo {
+  height: 56px; /* Increased from 48px to 56px for larger logo */
+  width: auto;
+  object-fit: contain;
+  max-width: 200px; /* Prevents it from getting too wide */
+}
+
+/* For smaller screens when navbar is shorter */
+@media (max-width: 768px) {
+  .navbar-logo {
+    height: 42px;
+  }
 }
 
 .nav-link { 

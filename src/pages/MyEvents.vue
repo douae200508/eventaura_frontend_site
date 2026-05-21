@@ -52,8 +52,17 @@
           class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
           <div class="flex flex-col md:flex-row">
             <!-- Image -->
-            <div class="md:w-48 h-48 bg-gray-100">
+            <div class="md:w-48 h-48 bg-gray-100 relative">
               <img :src="event.image || event.imagePreview" :alt="event.titre || event.title" class="w-full h-full object-cover">
+              <!-- Promoted Badge -->
+              <div v-if="event.isPromoted" class="absolute top-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full px-2 py-0.5 shadow-sm">
+                <span class="text-[10px] font-bold text-white flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0l-4.725 2.885a.562.562 0 01-.84-.61l1.285-5.385a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                  </svg>
+                  Promoted
+                </span>
+              </div>
             </div>
             
             <!-- Content -->
@@ -112,11 +121,23 @@
                   </svg>
                   View Details
                 </button>
+                
                 <button v-if="isEventPending(event)" @click="checkApprovalStatus(event)" class="text-yellow-500 hover:text-yellow-700 text-sm font-medium flex items-center gap-1">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
                   </svg>
                   Check Status
+                </button>
+                
+                <!-- PROMOTE BUTTON -->
+                <button 
+                  @click="handlePromoteEvent(event)"
+                  class="ml-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1.5 rounded-full text-xs font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center gap-1"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0l-4.725 2.885a.562.562 0 01-.84-.61l1.285-5.385a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                  </svg>
+                  Promote
                 </button>
               </div>
             </div>
@@ -124,6 +145,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Promote Modal -->
+    <PromoteEventModal
+      v-model="showPromoteModal"
+      :event="selectedEvent"
+      @ad-created="onAdCreated"
+    />
 
     <Footer />
   </div>
@@ -134,11 +162,16 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
+import PromoteEventModal from '../components/PromoteEventModal.vue'
 
 const router = useRouter()
 const myEvents = ref([])
 const currentUser = ref(null)
 const isLoading = ref(true)
+
+// Promote Modal states
+const showPromoteModal = ref(false)
+const selectedEvent = ref(null)
 
 // Computed properties for stats
 const approvedEvents = computed(() => myEvents.value.filter(e => e.status === 'approved' || e.status === 'published'))
@@ -156,7 +189,6 @@ function formatDate(date) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-// Helper functions
 function getStatusClass(status) {
   if (status === 'approved' || status === 'published') {
     return 'bg-green-100 text-green-700'
@@ -194,26 +226,15 @@ function loadMyEvents() {
   isLoading.value = true
   
   try {
-    // Récupérer les événements depuis localStorage
     const pendingEventsList = JSON.parse(localStorage.getItem('pendingEvents') || '[]')
     const approvedEventsList = JSON.parse(localStorage.getItem('approvedEvents') || '[]')
-    
-    console.log('pendingEventsList:', pendingEventsList)
-    console.log('approvedEventsList:', approvedEventsList)
-    console.log('Current User ID:', currentUser.value?.id)
-    
-    // Combiner tous les événements
     const allUserEvents = [...pendingEventsList, ...approvedEventsList]
     
-    // Filtrer par l'ID de l'organisateur connecté (utiliser organisateur_id ou organizerId)
     myEvents.value = allUserEvents.filter(e => {
       const organizerId = e.organisateur_id || e.organizerId
       return organizerId === currentUser.value?.id
     })
     
-    console.log('Filtered myEvents:', myEvents.value)
-    
-    // Trier par date (plus récent d'abord)
     myEvents.value.sort((a, b) => {
       const dateA = a.created_at || a.createdAt
       const dateB = b.created_at || b.createdAt
@@ -230,11 +251,23 @@ function loadMyEvents() {
 }
 
 function viewEventDetails(event) {
+  localStorage.setItem('currentEvent', JSON.stringify(event))
   router.push(`/events/${event.id}`)
 }
 
 function checkApprovalStatus(event) {
-  alert(`Event "${event.titre || event.title}" is still pending approval.\n\nYou will receive a notification once it's reviewed by the admin.\n\nSubmitted on: ${event.created_at || event.createdAt ? new Date(event.created_at || event.createdAt).toLocaleString() : 'Unknown'}`)
+  alert(`Event "${event.titre || event.title}" is still pending approval.`)
+}
+
+// Promote Event Handler
+function handlePromoteEvent(event) {
+  selectedEvent.value = event
+  showPromoteModal.value = true
+}
+
+function onAdCreated() {
+  loadMyEvents()
+  alert('Your event is now being promoted!')
 }
 
 onMounted(() => {

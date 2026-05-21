@@ -14,6 +14,8 @@ import Ticket from '../pages/Ticket.vue'
 import Payment from '../pages/Payment.vue'
 import Profile from '../pages/Profile.vue'
 import Notifications from '../pages/Notifications.vue'
+import PaymentSuccess from '../pages/PaymentSuccess.vue'
+
 
 const routes = [
   {
@@ -114,6 +116,13 @@ const routes = [
   name: 'VenueDetails',
   component: () => import('../pages/VenueDetails.vue')
 },
+
+
+{
+  path: '/payment-success',
+  name: 'PaymentSuccess',
+  component: PaymentSuccess
+}
 
 
 ]

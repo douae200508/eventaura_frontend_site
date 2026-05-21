@@ -165,24 +165,13 @@
       </div>
     </div>
 
-    <!-- ── FLOATING ACTION BUTTON (Create Event) ── -->
-    <button 
-      v-if="isOrganizer"
-      @click="router.push('/create-event')"
-      class="fixed bottom-8 right-8 bg-[#0a0f2e] hover:bg-blue-700 transition-all duration-300 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-40 group hover:scale-110"
-    >
-      <svg class="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-      </svg>
-    </button>
+    <!-- REMOVED: Floating Action Button (Create Event) -->
 
     <!-- Promote Modal -->
-    <PromoteModal
-      :show="showPromoteModal"
-      :event-id="selectedEvent?.id"
-      :event-title="selectedEvent?.titre"
-      @close="showPromoteModal = false"
-      @success="handlePromoteSuccess"
+    <PromoteEventModal
+      v-model="showPromoteModal"
+      :event="selectedEvent"
+      @ad-created="onAdCreated"
     />
 
     <Footer />
@@ -195,7 +184,7 @@ import { useRouter } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import EventCard from '../components/EventCard.vue'
-import PromoteModal from '../components/PromoteModal.vue'
+import PromoteEventModal from '../components/PromoteEventModal.vue'
 
 const router = useRouter()
 
@@ -233,7 +222,7 @@ const testEvents = [
       {
         id: 1001,
         note: 5,
-        commentaire: "Amazing conference! Learned so much from the keynote speakers. The organization was flawless.",
+        commentaire: "Amazing conference! Learned so much from the keynote speakers.",
         date_avis: "2026-05-20",
         user_id: 2,
         userName: "Sarah M.",
@@ -242,43 +231,52 @@ const testEvents = [
       {
         id: 1002,
         note: 4,
-        commentaire: "Great event overall. The speakers were knowledgeable. Will definitely attend next year.",
+        commentaire: "Great event overall!",
         date_avis: "2026-05-18",
         user_id: 3,
         userName: "Karim B.",
         userAvatar: "https://i.pravatar.cc/40?img=8"
-      },
-      {
-        id: 1003,
-        note: 5,
-        commentaire: "Best tech conference in Morocco! Highly recommended.",
-        date_avis: "2026-05-16",
-        user_id: 4,
-        userName: "Leila H.",
-        userAvatar: "https://i.pravatar.cc/40?img=5"
       }
     ]
   }
 ]
 
-// Fonctions utilitaires
-function formatPrice(price) {
-  if (!price || price === 0) return 'Free'
-  return `$${price}`
-}
-
-function formatDate(dateString) {
-  if (!dateString) return 'Date TBD'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+// SAVE TEST EVENT TO LOCALSTORAGE
+function saveTestEventToLocalStorage() {
+  const testEvent = {
+    id: 1001,
+    titre: "International Tech Conference 2026",
+    type: "Conference",
+    category: "Conference",
+    ville: "Casablanca",
+    lieu: "Casablanca Convention Center",
+    date_debut: "2026-05-15T09:00:00",
+    date_fin: "2026-05-17T18:00:00",
+    prix_ticket: 299,
+    capacite_max: 500,
+    description: "Discover innovative ideas, connect with industry leaders, and explore the latest trends shaping the future of technology.",
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
+    status: "approved",
+    organisateur_id: 1,
+    isPromoted: false,
+    avgRating: 4.7,
+    avisCount: 3
+  }
+  
+  const existingEvents = JSON.parse(localStorage.getItem('approvedEvents') || '[]')
+  const eventExists = existingEvents.some(e => e.id === 1001)
+  
+  if (!eventExists) {
+    existingEvents.push(testEvent)
+    localStorage.setItem('approvedEvents', JSON.stringify(existingEvents))
+    console.log('✅ Test event saved to localStorage')
+  }
 }
 
 // Charger tous les événements
 function loadEvents() {
   isLoading.value = true
-  // Utiliser les données de test directement
   allEvents.value = testEvents
-  console.log('Events loaded:', allEvents.value.length)
   isLoading.value = false
 }
 
@@ -290,7 +288,7 @@ function goToTickets(event) {
     return
   }
   if (userRole.value !== 'client') {
-    alert('Only clients can book tickets. Please register as a client.')
+    alert('Only clients can book tickets.')
     return
   }
   router.push({
@@ -299,7 +297,7 @@ function goToTickets(event) {
   })
 }
 
-// Ouvrir les détails de l'événement (œil)
+// Ouvrir les détails de l'événement
 function openEventDetails(event) {
   localStorage.setItem('currentEvent', JSON.stringify(event))
   router.push(`/events/${event.id}`)
@@ -318,16 +316,9 @@ function handlePromoteEvent(event) {
   showPromoteModal.value = true
 }
 
-function handlePromoteSuccess() {
-  // Update the event to show it's promoted
-  if (selectedEvent.value) {
-    const eventIndex = allEvents.value.findIndex(e => e.id === selectedEvent.value.id)
-    if (eventIndex !== -1) {
-      allEvents.value[eventIndex].isPromoted = true
-    }
-  }
-  showPromoteModal.value = false
-  alert('Your event is now being promoted! It will appear in the ads carousel.')
+function onAdCreated() {
+  loadEvents()
+  alert('Your event is now being promoted!')
 }
 
 // Filtres
@@ -431,6 +422,10 @@ onMounted(() => {
     userRole.value = currentUser.value.role
     isOrganizer.value = userRole.value === 'organizer'
   }
+  
+  // SAVE THE TEST EVENT TO LOCALSTORAGE
+  saveTestEventToLocalStorage()
+  
   loadEvents()
 })
 </script>

@@ -17,7 +17,7 @@
         </svg>
       </button>
 
-      <!-- Promoted Badge (if event is promoted) -->
+      <!-- Promoted Badge -->
       <div v-if="event.isPromoted" class="absolute top-3 left-3 bg-gradient-to-r from-purple-500 to-pink-500 backdrop-blur-sm rounded-full px-3 py-1 shadow-sm">
         <span class="text-xs font-bold text-white flex items-center gap-1">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -27,7 +27,7 @@
         </span>
       </div>
 
-      <!-- Price top-left (moved to right if promoted badge exists) -->
+      <!-- Price -->
       <div v-else class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1 shadow-sm">
         <span class="text-xs font-bold text-[#0a0f2e]">{{ formatPrice(event.prix_ticket) }}</span>
       </div>
@@ -35,7 +35,7 @@
       <!-- Bottom: type + rating -->
       <div class="absolute bottom-0 left-0 right-0 px-4 py-3 flex items-end justify-between">
         <div class="bg-[#0a0f2e]/80 backdrop-blur-sm rounded-full px-3 py-1">
-          <span class="text-white text-[10px] tracking-widest uppercase font-medium">{{ getTranslatedEventType(event.type) }}</span>
+          <span class="text-white text-[10px] tracking-widest uppercase font-medium">{{ event.type }}</span>
         </div>
         <div v-if="event.avgRating > 0" class="flex items-center gap-1 bg-white/95 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
           <svg class="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
@@ -49,13 +49,10 @@
 
     <!-- Content -->
     <div class="p-5 flex flex-col flex-1">
-
-      <!-- Title -->
       <h3 class="text-[15px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 leading-snug mb-2 line-clamp-2">
         {{ event.titre }}
       </h3>
 
-      <!-- City + Location -->
       <div class="flex items-center gap-1.5 text-gray-400 text-xs mb-1.5">
         <svg class="w-3.5 h-3.5 flex-shrink-0 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -64,7 +61,6 @@
         <span>{{ event.ville }} · {{ event.lieu }}</span>
       </div>
 
-      <!-- Date -->
       <div class="flex items-center gap-1.5 text-gray-400 text-xs mb-3">
         <svg class="w-3.5 h-3.5 flex-shrink-0 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5"/>
@@ -72,7 +68,6 @@
         <span>{{ formatDate(event.date_debut) }}</span>
       </div>
 
-      <!-- Description -->
       <p class="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-2">{{ event.description }}</p>
 
       <!-- Stats grid -->
@@ -107,8 +102,9 @@
         </div>
       </div>
 
-      <!-- Actions -->
+      <!-- ACTIONS - BOOK & PROMOTE BUTTONS -->
       <div class="flex items-center gap-2 mt-auto pt-3 border-t border-gray-100">
+        
         <!-- BOOK TICKETS BUTTON - For clients only -->
         <button 
           v-if="userRole === 'client'"
@@ -130,7 +126,7 @@
           Promote
         </button>
         
-        <!-- DISABLED PROMOTE BUTTON - For organizers who don't own this event -->
+        <!-- DISABLED PROMOTE - For organizers who don't own the event -->
         <div 
           v-else-if="userRole === 'organizer' && !isEventOwner"
           class="flex-1 bg-gray-100 text-gray-400 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-not-allowed"
@@ -139,7 +135,7 @@
           Promote
         </div>
         
-        <!-- FALLBACK FOR PROVIDER ROLE -->
+        <!-- PROVIDER ROLE - Cannot book -->
         <div 
           v-else-if="userRole === 'provider'"
           class="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-not-allowed"
@@ -148,7 +144,7 @@
           Book Tickets
         </div>
         
-        <!-- FALLBACK FOR NON-LOGGED IN USERS -->
+        <!-- NOT LOGGED IN -->
         <div 
           v-else-if="!userRole"
           class="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-pointer hover:bg-gray-200 transition-colors"
@@ -157,7 +153,7 @@
           Sign in to book
         </div>
         
-        <!-- PREVIEW BUTTON (Eye) - Shows for everyone -->
+        <!-- PREVIEW BUTTON (Eye) - For everyone -->
         <button 
           @click="$emit('preview', event)"
           class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-[#0a0f2e] hover:text-[#0a0f2e] transition-all duration-300 flex-shrink-0"
@@ -175,7 +171,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 const props = defineProps({ 
   event: { 
@@ -185,7 +180,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['book', 'preview', 'favorite-updated', 'promote'])
-const { t } = useI18n()
 
 const isFavorited = ref(false)
 const currentUser = ref(null)
@@ -206,19 +200,6 @@ function formatDate(dateString) {
   if (!dateString) return 'Date TBD'
   const date = new Date(dateString)
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function getTranslatedEventType(type) {
-  if (!type) return 'Event'
-  const typeMap = {
-    'Conference': 'Conference',
-    'Workshop': 'Workshop',
-    'Networking': 'Networking',
-    'Summit': 'Summit',
-    'Bootcamp': 'Bootcamp',
-    'Webinar': 'Webinar'
-  }
-  return typeMap[type] || type
 }
 
 function checkIfFavorited() {

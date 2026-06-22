@@ -59,9 +59,27 @@
 
     <!-- Content -->
     <div class="p-5 flex flex-col flex-1">
-      <h3 class="text-[15px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 leading-snug mb-2 line-clamp-2">
+      <!-- Title -->
+      <h3 class="text-[15px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 leading-snug line-clamp-2 mb-2">
         {{ event.titre }}
       </h3>
+
+      <!-- Organizer - Clickable (ALWAYS SHOW) -->
+      <button 
+        v-if="organizerData"
+        @click.stop="viewOrganizerProfile"
+        class="flex items-center gap-1.5 mb-2 group/provider hover:bg-gray-50 p-1 -ml-1 rounded-lg transition-colors w-fit"
+        :title="`View ${organizerData.prenom} ${organizerData.nom}'s profile`"
+      >
+        <img 
+          :src="organizerData.photo_profil || `https://ui-avatars.com/api/?name=${organizerData.prenom}+${organizerData.nom}&background=0a0f2e&color=fff&size=32`" 
+          class="w-6 h-6 rounded-full object-cover border border-gray-200 group-hover/provider:border-blue-400 transition-all"
+        />
+        <span class="text-[11px] text-gray-500 group-hover/provider:text-blue-500 transition-colors">
+          {{ organizerData.prenom }} {{ organizerData.nom }}
+        </span>
+        <span class="text-[10px] text-gray-400 group-hover/provider:text-blue-400 transition-colors">(Organizer)</span>
+      </button>
 
       <div class="flex items-center gap-1.5 text-gray-400 text-xs mb-1.5">
         <svg class="w-3.5 h-3.5 flex-shrink-0 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -112,78 +130,46 @@
         </div>
       </div>
 
-      <!-- ACTIONS -->
-      <div class="flex items-center gap-2 mt-auto pt-3 border-t border-gray-100">
-        
-        <!-- BOOK TICKETS BUTTON - For clients only -->
-        <button 
-          v-if="userRole === 'client'"
-          @click="$emit('book', event)"
-          class="flex-1 bg-[#0a0f2e] text-white py-2.5 rounded-full text-xs font-semibold tracking-wide hover:bg-blue-700 transition-colors duration-300"
-        >
-          Book Tickets
-        </button>
-        
-        <!-- PROMOTE BUTTON - For organizers who own this event -->
-        <button 
-          v-if="userRole === 'organizer' && isEventOwner"
-          @click="$emit('promote', event)"
-          class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2.5 rounded-full text-xs font-semibold tracking-wide hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center justify-center gap-1"
-        >
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0l-4.725 2.885a.562.562 0 01-.84-.61l1.285-5.385a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-          </svg>
-          Promote
-        </button>
-        
-        <!-- DISABLED PROMOTE - For organizers who don't own the event -->
-        <div 
-          v-else-if="userRole === 'organizer' && !isEventOwner"
-          class="flex-1 bg-gray-100 text-gray-400 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-not-allowed"
-          title="You can only promote your own events"
-        >
-          Promote
-        </div>
-        
-        <!-- PROVIDER ROLE -->
-        <div 
-          v-else-if="userRole === 'provider'"
-          class="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-not-allowed"
-          title="Only clients can book tickets"
-        >
-          Book Tickets
-        </div>
-        
-        <!-- NOT LOGGED IN -->
-        <div 
-          v-else-if="!userRole"
-          class="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-pointer hover:bg-gray-200 transition-colors"
-          @click="$emit('book', event)"
-        >
-          Sign in to book
-        </div>
-        
-        <!-- SHARE BUTTON -->
-        <button 
-          @click.stop="shareEvent"
-          class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-all duration-300 flex-shrink-0"
-          title="Share this event"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/>
-          </svg>
-        </button>
-        
-        <!-- PREVIEW BUTTON (Eye) -->
-        <button 
-          @click="$emit('preview', event)"
-          class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-[#0a0f2e] hover:text-[#0a0f2e] transition-all duration-300 flex-shrink-0"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-        </button>
+      <!-- ACTION BUTTON - Conditional -->
+      <!-- For clients: Show Book Tickets -->
+      <button 
+        v-if="userRole === 'client'"
+        @click="$emit('book', event)"
+        class="w-full bg-[#0a0f2e] text-white py-2.5 rounded-full text-xs font-semibold tracking-wide hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-1 mt-auto"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Book Tickets
+      </button>
+
+      <!-- For organizers who own this event: Show Promote button -->
+      <button 
+        v-else-if="userRole === 'organizer' && isEventOwner"
+        @click="$emit('promote', event)"
+        class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2.5 rounded-full text-xs font-semibold tracking-wide hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center justify-center gap-1 mt-auto"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0l-4.725 2.885a.562.562 0 01-.84-.61l1.285-5.385a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+        </svg>
+        Promote Event
+      </button>
+
+      <!-- For organizers who don't own the event -->
+      <div 
+        v-else-if="userRole === 'organizer' && !isEventOwner"
+        class="w-full bg-gray-100 text-gray-400 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-not-allowed mt-auto"
+      >
+        You don't own this event
+      </div>
+
+      <!-- For providers or non-logged in users -->
+      <div 
+        v-else
+        class="w-full bg-gray-100 text-gray-500 py-2.5 rounded-full text-xs font-semibold tracking-wide text-center cursor-not-allowed mt-auto"
+      >
+        {{ userRole ? 'Only clients can book' : 'Sign in to book' }}
       </div>
 
     </div>
@@ -192,6 +178,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({ 
   event: { 
@@ -201,16 +188,43 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['book', 'preview', 'favorite-updated', 'promote'])
+const router = useRouter()
 
 const isFavorited = ref(false)
 const currentUser = ref(null)
 const userRole = ref(null)
+const organizerData = ref(null)
 
 // Check if current user is the owner of this event
 const isEventOwner = computed(() => {
   if (!currentUser.value || !props.event.organisateur_id) return false
   return currentUser.value.id === props.event.organisateur_id
 })
+
+// Load organizer data from users list
+function loadOrganizerData() {
+  if (!props.event.organisateur_id) {
+    console.log('No organisateur_id found for event:', props.event.titre)
+    return
+  }
+  
+  const users = JSON.parse(localStorage.getItem('eventaura_users') || '[]')
+  const organizer = users.find(u => u.id === props.event.organisateur_id)
+  
+  if (organizer) {
+    organizerData.value = organizer
+    console.log('✅ Organizer found:', organizer.prenom, organizer.nom)
+  } else {
+    console.log('❌ Organizer not found for ID:', props.event.organisateur_id)
+  }
+}
+
+// Navigate to organizer profile
+function viewOrganizerProfile() {
+  if (props.event.organisateur_id && organizerData.value) {
+    router.push(`/organizer/${props.event.organisateur_id}`)
+  }
+}
 
 function formatPrice(price) {
   if (!price || price === 0) return 'Free'
@@ -283,6 +297,7 @@ onMounted(() => {
     userRole.value = currentUser.value.role
     isFavorited.value = checkIfFavorited()
   }
+  loadOrganizerData()
 })
 </script>
 

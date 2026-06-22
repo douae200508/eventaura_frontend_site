@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50">
     <Navbar />
 
-    <!-- Simple Header - Clean like Contact page -->
+    <!-- Simple Header -->
     <div class="bg-white border-b border-gray-100 pt-32 pb-8">
       <div class="max-w-7xl mx-auto px-8">
         <h1 class="text-3xl font-light text-gray-900" style="font-family: 'Cinzel', serif;">
@@ -123,7 +123,7 @@
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
 
-          <!-- Grid -->
+          <!-- Grid - Shows ALL events from localStorage -->
           <div v-else-if="filteredEvents.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <EventCard
               v-for="event in filteredEvents"
@@ -182,85 +182,25 @@ const isOrganizer = ref(false)
 const showPromoteModal = ref(false)
 const selectedEvent = ref(null)
 
-// DONNÉES DE TEST INTÉGRÉES DIRECTEMENT
-const testEvents = [
-  {
-    id: 1001,
-    titre: "International Tech Conference 2026",
-    type: "Conference",
-    category: "Conference",
-    ville: "Casablanca",
-    lieu: "Casablanca Convention Center",
-    date_debut: "2026-05-15T09:00:00",
-    date_fin: "2026-05-17T18:00:00",
-    prix_ticket: 299,
-    capacite_max: 500,
-    description: "Discover innovative ideas, connect with industry leaders, and explore the latest trends shaping the future of technology.",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
-    statut: "accepte",
-    organisateur_id: 1,
-    avgRating: 4.7,
-    isPromoted: false,
-    reviews: [
-      {
-        id: 1001,
-        note: 5,
-        commentaire: "Amazing conference! Learned so much from the keynote speakers.",
-        date_avis: "2026-05-20",
-        user_id: 2,
-        userName: "Sarah M.",
-        userAvatar: "https://i.pravatar.cc/40?img=1"
-      },
-      {
-        id: 1002,
-        note: 4,
-        commentaire: "Great event overall!",
-        date_avis: "2026-05-18",
-        user_id: 3,
-        userName: "Karim B.",
-        userAvatar: "https://i.pravatar.cc/40?img=8"
-      }
-    ]
-  }
-]
-
-// SAVE TEST EVENT TO LOCALSTORAGE
-function saveTestEventToLocalStorage() {
-  const testEvent = {
-    id: 1001,
-    titre: "International Tech Conference 2026",
-    type: "Conference",
-    category: "Conference",
-    ville: "Casablanca",
-    lieu: "Casablanca Convention Center",
-    date_debut: "2026-05-15T09:00:00",
-    date_fin: "2026-05-17T18:00:00",
-    prix_ticket: 299,
-    capacite_max: 500,
-    description: "Discover innovative ideas, connect with industry leaders, and explore the latest trends shaping the future of technology.",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
-    status: "approved",
-    organisateur_id: 1,
-    isPromoted: false,
-    avgRating: 4.7,
-    avisCount: 3
-  }
-  
-  const existingEvents = JSON.parse(localStorage.getItem('approvedEvents') || '[]')
-  const eventExists = existingEvents.some(e => e.id === 1001)
-  
-  if (!eventExists) {
-    existingEvents.push(testEvent)
-    localStorage.setItem('approvedEvents', JSON.stringify(existingEvents))
-    console.log('✅ Test event saved to localStorage')
-  }
-}
-
-// Charger tous les événements
+// Charger tous les événements depuis localStorage
 function loadEvents() {
   isLoading.value = true
-  allEvents.value = testEvents
-  isLoading.value = false
+  
+  try {
+    // Get ALL events from localStorage
+    const approvedEvents = JSON.parse(localStorage.getItem('approvedEvents') || '[]')
+    const pendingEvents = JSON.parse(localStorage.getItem('pendingEvents') || '[]')
+    
+    // Combine both lists - NO FILTERING
+    allEvents.value = [...pendingEvents, ...approvedEvents]
+    
+    console.log('✅ Loaded', allEvents.value.length, 'events from localStorage')
+  } catch (error) {
+    console.error('Error loading events:', error)
+    allEvents.value = []
+  } finally {
+    isLoading.value = false
+  }
 }
 
 // Naviguer vers la page de tickets
@@ -398,9 +338,6 @@ onMounted(() => {
     userRole.value = currentUser.value.role
     isOrganizer.value = userRole.value === 'organizer'
   }
-  
-  // SAVE THE TEST EVENT TO LOCALSTORAGE
-  saveTestEventToLocalStorage()
   
   loadEvents()
 })

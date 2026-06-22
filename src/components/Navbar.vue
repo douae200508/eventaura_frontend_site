@@ -37,7 +37,7 @@
 
       <!-- Center Logo - FIXED Cinzel font, looks the same on all pages -->
       <router-link to="/" class="logo-link absolute left-1/2 -translate-x-1/2">
-        Event<span class="logo-highlight">Aura</span>
+        EventAura
       </router-link>
 
       <div class="hidden md:flex items-center gap-6">

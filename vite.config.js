@@ -8,6 +8,14 @@ export default defineConfig({
     vue(),
     vueDevTools()
   ],
+  
+  server: {
+    host: '0.0.0.0', // Allows access from network (phone, other devices)
+    port: 5173,
+    allowedHosts: [
+      'boastful-blaming-crushing.ngrok-free.dev'
+    ]
+  },
 
   resolve: {
     alias: {

@@ -162,44 +162,88 @@ function closeChat() {
 }
 
 async function sendMessage() {
+
   const text = inputText.value.trim()
+
   if (!text || isLoading.value) return
 
-  messages.value.push({ id: Date.now(), role: 'user', content: text })
+
+  messages.value.push({
+    id: Date.now(),
+    role: 'user',
+    content: text
+  })
+
+
   inputText.value = ''
   isLoading.value = true
 
+
   await scrollToBottom()
 
-  // Simulate AI response (replace with actual API call)
-  setTimeout(() => {
-    let reply = ''
-    
-    if (text.toLowerCase().includes('event')) {
-      if (props.events.length > 0) {
-        const eventsList = props.events.slice(0, 3).map(e => `• ${e.title} - ${e.date} - ${e.price}`).join('\n')
-        reply = `Here are some events you might like:\n\n${eventsList}\n\nWould you like more details about any of these?`
-      } else {
-        reply = "I couldn't find any events right now. Please check back later!"
+
+  try {
+
+    const response = await fetch(
+      "http://localhost:8000/api/site/chatbot",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+
+        body: JSON.stringify({
+          message: text
+        })
       }
-    } else if (text.toLowerCase().includes('service') || text.toLowerCase().includes('provider')) {
-      if (props.services.length > 0) {
-        const servicesList = props.services.slice(0, 3).map(s => `• ${s.name} - ${s.categoryLabel} - ${s.price}`).join('\n')
-        reply = `Here are some service providers:\n\n${servicesList}\n\nWould you like to see more?`
-      } else {
-        reply = "I couldn't find any service providers at the moment."
-      }
-    } else {
-      reply = "Thanks for your message! I can help you find events, compare tickets, or discover service providers. What are you interested in?"
-    }
-    
-    messages.value.push({ id: Date.now() + 1, role: 'assistant', content: reply })
-    isLoading.value = false
-    scrollToBottom()
-    
-    if (!isOpen.value) hasUnread.value = true
-  }, 1000)
+    )
+
+
+    const data = await response.json()
+
+
+    messages.value.push({
+
+      id: Date.now()+1,
+
+      role: "assistant",
+
+      content: data.response
+
+    })
+
+
+  } catch(error) {
+
+
+    messages.value.push({
+
+      id: Date.now()+1,
+
+      role:"assistant",
+
+      content:"Erreur de connexion avec Aura AI."
+
+    })
+
+  }
+
+
+
+  isLoading.value = false
+
+  scrollToBottom()
+
+
+  if (!isOpen.value) {
+    hasUnread.value = true
+  }
+
 }
+
+
 
 function sendSuggestion(text) {
   inputText.value = text
